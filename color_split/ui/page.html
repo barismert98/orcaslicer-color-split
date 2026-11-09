@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Color Split</title>
+<style>
+/* Colours come from OrcaSlicer's --orca-* theme and the project's real filament colours.
+   Greys are translucent so they work on both themes. Nothing here moves on its own. */
+:root{--raised:rgba(128,128,128,.10);--raised-2:rgba(128,128,128,.18);--track:rgba(128,128,128,.28);
+  --solid:rgba(128,128,128,.6);--line:var(--orca-border,rgba(128,128,128,.35));--muted:var(--orca-muted,#8a8a8a);
+  --accent:var(--orca-accent,#00897b);--accent-fg:var(--orca-accent-fg,#fff);--outline:var(--orca-muted,#8a8a8a)}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--orca-bg,transparent);color:var(--orca-fg,inherit);font:13px/1.45 var(--orca-font,"Segoe UI",system-ui,sans-serif)}
+h1,h2,h3,p,ol,ul{margin:0}
+.tab{min-height:100%;padding:18px 24px 0;display:flex;flex-direction:column;gap:14px}
+.num{font-variant-numeric:tabular-nums}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px}
+.top img{width:30px;height:30px;flex:none}
+.top h1{font-size:17px;font-weight:600;line-height:1.15}
+.top .sub{font-size:12px;color:var(--muted)}
+.pick{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0;flex:0 1 420px}
+.pick label{color:var(--muted)}
+.pick select{flex:1}
+select,input[type=number]{height:32px;padding:0 9px;font:inherit;color:inherit;background:var(--raised-2);border:1px solid var(--line);border-radius:5px;min-width:0}
+option{color:var(--orca-fg,#222);background:var(--orca-bg,#fff)}
+select:disabled,input:disabled{opacity:.55}
+.icon{width:32px;height:32px;flex:none;padding:0;border:1px solid var(--line);border-radius:5px;background:var(--raised-2);color:inherit;font-size:15px;line-height:1;cursor:pointer}
+.icon:hover:not(:disabled){background:var(--track)}
+.icon:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+.main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 420px;grid-template-rows:auto auto 1fr auto;
+  grid-template-areas:"left next" "left set" "left gap" "left acts";gap:14px 24px;min-height:0}
+.left{grid-area:left;display:flex;flex-direction:column;gap:14px;min-width:0;padding-bottom:18px}
+.next{grid-area:next}.set{grid-area:set}.acts{grid-area:acts}
+
+.heads,.lrow{display:grid;grid-template-columns:minmax(0,1.1fr) 40px minmax(0,1fr)}
+.heads{font-size:12px;font-weight:600;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--line);align-items:center}
+.heads>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heads svg{justify-self:center;width:20px;height:20px}
+.lrow{min-height:56px;align-items:center;border-bottom:1px solid var(--line)}
+.from{display:grid;grid-template-columns:22px minmax(110px,1fr) minmax(70px,170px) 112px;grid-template-areas:"sw text bar pct";gap:0 10px;align-items:center;padding:5px 0;min-width:0}
+.sw{grid-area:sw;width:22px;height:22px;border-radius:50%;box-shadow:0 0 0 1px var(--outline)}
+.text{grid-area:text;min-width:0}
+.text div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.name{font-size:13.5px;font-weight:600;line-height:1.3}
+.sub2{font-size:12px;color:var(--muted);line-height:1.3}
+.bar{grid-area:bar;height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;min-width:3px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--outline)}
+.pct{grid-area:pct;text-align:right;white-space:nowrap;font-size:12px;color:var(--muted)}
+.pct b{font-size:14px;font-weight:600;color:var(--orca-fg,inherit)}
+.seam{align-self:stretch;position:relative}
+.seam::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px solid var(--line)}
+.to{min-width:0;padding:5px 0}
+.to .l1{font-weight:600;line-height:1.3}
+.to .l1 span{font-weight:400}
+.to .l2{font-size:12px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.blank{padding:26px 0;color:var(--muted);border-bottom:1px solid var(--line)}
+
+.note{padding:10px 12px;border-radius:6px;background:var(--raised)}
+.notes h3{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.notes ul{padding:0;list-style:none}
+.notes li{padding:0 0 5px 14px;position:relative;overflow-wrap:anywhere}
+.notes li::before{content:"";position:absolute;left:1px;top:6px;width:6px;height:6px;border-radius:50%;border:1.5px solid var(--muted)}
+.notes summary{cursor:pointer;font-weight:600;text-decoration:underline;list-style:none;width:max-content}
+.notes summary::-webkit-details-marker{display:none}
+.notes details[open] summary{display:none}
+
+.card{padding:14px 16px;background:var(--raised);border-radius:8px;min-width:0}
+.card h2{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.card ol{padding:0 0 0 18px}
+.card ol li{padding-bottom:3px}
+.done{font-size:16px;font-weight:600;margin-bottom:3px;overflow-wrap:anywhere}
+.steps{margin:8px 0 10px;padding:0;list-style:none}
+.steps li{padding:5px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.steps b{font-weight:600}
+.path{font-size:12px;color:var(--muted);overflow-wrap:anywhere;margin-bottom:8px}
+.alert{padding:8px 10px;margin-bottom:10px;border-left:3px solid #d9403a;background:rgba(217,64,58,.12);border-radius:0 4px 4px 0;overflow-wrap:anywhere}
+.pbar{height:8px;border-radius:4px;background:var(--track);margin:8px 0 2px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--accent)}
+
+.ctl-label{font-weight:600;margin-bottom:6px}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.mode{display:block;position:relative;padding:8px;border-radius:6px;border:1px solid var(--line);min-width:0;cursor:pointer}
+.mode input{position:absolute;opacity:0;pointer-events:none}
+.mode:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mode:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:1px}
+.mode svg{width:100%;height:32px;display:block;margin-bottom:5px}
+.mode b{display:block;font-weight:600}
+.mode span{display:block;font-size:12px;line-height:1.3;color:var(--muted)}
+.line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.modes+.line{margin-top:10px}
+.line b{font-weight:600}
+.line small{display:block;font-size:12px;color:var(--muted)}
+.unit{position:relative;width:104px;flex:none}.unit input{width:100%;padding-right:32px}
+.unit span{position:absolute;right:9px;top:7px;color:var(--muted);pointer-events:none}
+.tg{position:relative;width:34px;height:18px;flex:none}
+.tg input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.tg span{position:absolute;inset:0;border-radius:9px;background:var(--raised-2);border:1px solid var(--line)}
+.tg span::after{content:"";position:absolute;width:12px;height:12px;left:2px;top:2px;border-radius:50%;background:var(--muted)}
+.tg input:checked+span{background:var(--accent);border-color:var(--accent)}
+.tg input:checked+span::after{left:18px;background:var(--accent-fg)}
+.tg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:1px}
+
+details.set{padding:0}
+details.set>summary{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;list-style:none}
+details.set>summary::-webkit-details-marker{display:none}
+details.set>summary svg{width:14px;height:14px;margin-left:auto;flex:none;color:var(--muted)}
+details.set[open]>summary svg{transform:rotate(180deg)}
+details.set.plain>summary{display:none}
+details.set .inner{padding:0 16px 14px}
+details.set.plain .inner{padding-top:14px}
+.sumtxt{min-width:0;color:var(--muted)}
+
+button{font:inherit}
+.acts{display:flex;gap:8px;position:sticky;bottom:0;background:var(--orca-bg,transparent);padding:10px 0 16px;z-index:2}
+.go,.ghost{height:40px;border-radius:5px;padding:0 16px;cursor:pointer}
+.go{flex:1;min-width:0;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.go.again{background:transparent;color:inherit}
+.ghost{background:transparent;color:inherit;border:1px solid var(--line)}
+.ghost:hover:not(:disabled){background:var(--raised)}
+button:disabled{opacity:.45;cursor:default}
+.wide{width:100%;height:32px}
+
+@media (max-width:900px){
+  .tab{padding:14px 16px 0}
+  .main{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-template-areas:none;gap:12px;align-content:start}
+  .left,.next,.set,.acts{grid-area:auto}
+  .tab.finished .next{order:-1}
+  .left{order:0;padding-bottom:0}.next{order:1}.set{order:2}
+  .acts{order:3;border-top:1px solid var(--line);padding:10px 0 12px}
+  .pick{margin-left:0;flex:1 1 100%}
+  .heads,.lrow{grid-template-columns:minmax(0,1.15fr) 24px minmax(0,1fr)}
+  .heads svg{width:16px;height:16px}
+  .from{grid-template-columns:22px minmax(0,1fr) auto;grid-template-areas:"sw text pct" "sw bar bar";gap:3px 8px}
+}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="slid" viewBox="0 0 64 64"><path d="M29,8 A20,20 0 0 0 29,48 Z" fill="currentColor"/><path d="M36,16 A20,20 0 0 1 36,56 Z" fill="currentColor"/></symbol>
+ <symbol id="chev" viewBox="0 0 16 16"><path d="M3 6 L8 11 L13 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <!-- Side views that explain each option; they are not the user's model -->
+ <symbol id="m-cut" viewBox="0 0 150 44"><path d="M8,12 H52 C54,32 96,32 98,12 H142 V40 H8 Z" fill="var(--solid)"/><path d="M57,12 H93 C90,27 60,27 57,12 Z" fill="var(--accent)"/></symbol>
+ <symbol id="m-raise" viewBox="0 0 150 44"><rect x="8" y="16" width="134" height="24" fill="var(--solid)"/><rect x="54" y="6" width="42" height="9" fill="var(--accent)"/></symbol>
+ <symbol id="m-inlay" viewBox="0 0 150 44"><path d="M8,12 H52 V24 H98 V12 H142 V40 H8 Z" fill="var(--solid)"/><rect x="54" y="12" width="42" height="10" fill="var(--accent)"/></symbol>
+</defs></svg>
+<div class="tab" id="tab">
+ <header class="top">
+  <img src="data:image/svg+xml;base64,__ICON__" alt="">
+  <div><h1>Color Split</h1><div class="sub">From one painted model to separate parts</div></div>
+  <div class="pick"><label for="obj">Object</label><select id="obj"></select>
+   <button class="icon" id="refresh" title="Read the plate and the colours again" aria-label="Read the plate again">&#x21bb;</button></div>
+ </header>
+ <div class="main">
+  <div class="left">
+   <div>
+    <div class="heads"><div id="head-from">Colours found</div><svg aria-hidden="true"><use href="#slid"/></svg><div id="head-to"></div></div>
+    <div id="ledger"></div>
+   </div>
+   <div id="below"></div>
+  </div>
+  <div class="card next" id="next"></div>
+  <details class="card set plain" id="settings" open>
+   <summary><span class="ctl-label" style="margin:0">Settings</span><span class="sumtxt" id="sumtxt"></span><svg aria-hidden="true"><use href="#chev"/></svg></summary>
+   <div class="inner">
+    <div class="ctl-label" id="surface-label">Surface paint</div>
+    <div class="modes" role="radiogroup" aria-labelledby="surface-label">
+     <label class="mode"><input type="radio" name="surface" value="paint" checked><svg aria-hidden="true"><use href="#m-cut"/></svg><b>Cut</b><span>Cut along the border; flat paint stays painted.</span></label>
+     <label class="mode"><input type="radio" name="surface" value="raise"><svg aria-hidden="true"><use href="#m-raise"/></svg><b>Raise</b><span>Surface paint becomes a part on top.</span></label>
+     <label class="mode"><input type="radio" name="surface" value="inlay"><svg aria-hidden="true"><use href="#m-inlay"/></svg><b>Inlay</b><span>Sinks in, flush; engravings filled.</span></label>
+    </div>
+    <div class="line"><div><label for="thick"><b>Thickness</b></label><small>For Raise and Inlay</small></div>
+     <div class="unit"><input id="thick" type="number" step="0.1" min="0.2" max="5" value="0.6" disabled><span>mm</span></div></div>
+    <div class="line"><div><label for="joints"><b>Take out buried parts whole</b></label><small>A ball sunk past its middle comes out whole; the base is cut through it.</small></div>
+     <span class="tg"><input type="checkbox" id="joints"><span></span></span></div>
+    <div class="line"><div><label for="plate"><b>Add parts to the plate</b></label></div>
+     <span class="tg"><input type="checkbox" id="plate" checked><span></span></span></div>
+   </div>
+  </details>
+  <div class="acts"><button class="go" id="go" disabled>Split</button><button class="ghost" id="cancel" disabled>Cancel</button></div>
+ </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const post = m => window.orca.postMessage(m);
+const SCAN_AGAIN_MS = 5000;  // returning to the tab reads the colours again, at most this often
+const S = {busy: false, seq: 0, key: null, ledger: null, reading: false, scanError: "", result: null,
+           progress: null, error: "", lastScan: 0, wantScan: false, force: false, none: false};
+
+const mode = () => document.querySelector('input[name="surface"]:checked').value;
+const thick = () => parseFloat($("thick").value);
+const name = () => { const o = $("obj").selectedOptions[0]; return o ? o.textContent : ""; };
+const key = () => $("obj").value + ":" + name();
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
+
+function swatchRow(rowName, sub, c, to) {
+  const row = el("div", "lrow"), from = el("div", "from");
+  const sw = el("span", "sw");
+  if (c.colour) sw.style.background = c.colour;
+  sw.title = c.colour || "Colour not known";
+  const text = el("div", "text");
+  text.appendChild(el("div", "name", rowName));
+  if (sub) text.appendChild(el("div", "sub2", sub));
+  from.append(sw, text);
+  if (c.share !== undefined) {
+    const bar = el("div", "bar"), fill = el("i");
+    fill.style.width = Math.min(c.share, 100) + "%";
+    if (c.colour) fill.style.background = c.colour;
+    bar.appendChild(fill);
+    const pct = el("div", "pct num");
+    pct.appendChild(el("b", null, c.share < 0.05 ? "<0.1%" : c.share.toFixed(1) + "%"));
+    pct.append(" of surface");
+    from.append(bar, pct);
+  }
+  row.append(from, el("div", "seam"), to);
+  return row;
+}
+function toCell(l1, l2, extra) {
+  const to = el("div", "to"), first = el("div", "l1 num", l1);
+  if (extra) first.appendChild(el("span", null, " · " + extra));
+  to.appendChild(first);
+  if (l2) to.appendChild(el("div", "l2", l2));
+  return to;
+}
+const baseSub = b => "Filament " + b.filament + (b.preset ? " · " + b.preset : "");
+function partCell(p) {
+  const pieces = plural(p.pieces, "piece");
+  return toCell("Part written", p.file, pieces + " · " + Math.round(p.volume).toLocaleString("en-US") + " mm³");
+}
+function attempt() {
+  const m = mode();
+  if (m === "paint") return "Along its paint border";
+  const t = isFinite(thick()) ? thick() + " mm" : "";
+  return m === "raise" ? "Sharp borders cut; surface paint raised " + t : "Sharp borders cut; surface paint inlaid " + t;
+}
+
+function renderLedger() {
+  const box = $("ledger"), below = $("below");
+  box.innerHTML = ""; below.innerHTML = "";
+  $("head-from").textContent = name() ? "Colours found on " + name() : "Colours found";
+  const r = S.result;
+  if (r) {
+    const stayed = r.found.filter(c => c.outcome !== "part").length;
+    $("head-to").textContent = plural(r.parts.length, "part") + " written" +
+      (stayed ? ", " + plural(stayed, "filament") + " stayed painted" : "");
+    const used = new Set();
+    const base = r.parts.find(p => p.filament === null);
+    if (base) used.add(base);
+    box.appendChild(swatchRow("Base", baseSub(r.base), r.base,
+      base ? partCell(base) : toCell("No base part", "Nothing was left once the colours were cut away")));
+    for (const c of r.found) {
+      const part = r.parts.find(p => p.filament === c.filament);
+      if (part) used.add(part);
+      box.appendChild(swatchRow("Filament " + c.filament, c.preset, c, part && c.outcome === "part"
+        ? partCell(part) : toCell("Stayed painted", "No part was written for this filament")));
+    }
+    for (const p of r.parts.filter(p => !used.has(p)))  // a part on a filament not painted as such
+      box.appendChild(swatchRow(p.label, p.preset, {colour: p.colour}, partCell(p)));
+    renderNotes(below, r.warnings || []);
+    return;
+  }
+  $("head-to").textContent = S.ledger ? "What Color Split will try" : "";
+  if (S.none) {
+    box.appendChild(el("div", "blank", "No object on the plate has colour painting. Paint one with the colour painting tool, then press ↻."));
+  } else if (S.ledger) {
+    const b = S.ledger.base;
+    box.appendChild(swatchRow("Base", baseSub(b), b, toCell("Base part", "What is left once the colours are cut away")));
+    for (const c of S.ledger.colours)
+      box.appendChild(swatchRow("Filament " + c.filament, c.preset, c, toCell("Try to cut out as a part", attempt())));
+    const note = el("div", "note");
+    if (S.ledger.colours.length) {
+      note.appendChild(el("b", null, "Not every colour can become a part. "));
+      note.append(mode() === "paint"
+        ? "Smooth flat paint that encloses no volume, and colours too thin to stand alone, such as a pupil on an eye, stay painted on their neighbour. You will see which ones after the split."
+        : "Paint that cannot be cut or built safely stays painted on the base. You will see which ones after the split.");
+    } else {
+      note.append("This object has only its base filament, so there is no other colour to split off.");
+    }
+    below.appendChild(note);
+  } else if (S.scanError) {
+    box.appendChild(el("div", "blank", S.scanError));
+  } else if (S.busy) {
+    box.appendChild(el("div", "blank", "The colours appear here when the split is done."));
+  } else if (S.reading) {
+    box.appendChild(el("div", "blank", "Reading colours of " + name() + "…"));
+  }
+}
+
+const RANK = /could not|stay painted|nothing to split/i;
+function renderNotes(parent, warnings) {
+  if (!warnings.length) return;
+  const text = w => { const s = w.replace(/^colour (\d+)/i, "Filament $1"); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const ranked = [...warnings.filter(w => RANK.test(w)), ...warnings.filter(w => !RANK.test(w))].map(text);
+  const note = el("div", "note notes");
+  note.appendChild(el("h3", null, "Notes from the split (" + ranked.length + ")"));
+  const list = items => { const ul = el("ul"); items.forEach(t => ul.appendChild(el("li", null, t))); return ul; };
+  note.appendChild(list(ranked.slice(0, 3)));
+  if (ranked.length > 3) {
+    const more = el("details");
+    more.appendChild(el("summary", null, "Show all " + ranked.length));
+    more.appendChild(list(ranked.slice(3)));
+    note.appendChild(more);
+  }
+  parent.appendChild(note);
+}
+
+function stepList(items) {
+  const ul = el("ul", "steps");
+  for (const item of items) {
+    const li = el("li");
+    item.forEach(bit => li.append(bit.b ? el("b", null, bit.b) : bit));
+    ul.appendChild(li);
+  }
+  return ul;
+}
+function openFolderButton() {
+  const b = el("button", "ghost wide", "Open folder");
+  b.onclick = () => post({type: "open_folder"});
+  return b;
+}
+function renderNext() {
+  const c = $("next");
+  c.innerHTML = "";
+  if (S.error) c.appendChild(el("div", "alert", S.error));
+  if (S.busy && S.progress) {
+    const p = S.progress, total = Math.max(p.total, 1);
+    c.appendChild(el("div", "done", "Splitting " + name()));
+    const msg = p.message.charAt(0).toUpperCase() + p.message.slice(1);
+    c.appendChild(el("div", null, "Step " + Math.min(p.step + 1, total) + " of " + total + ": " + msg + "…"));
+    const bar = el("div", "pbar"), fill = el("i");
+    fill.style.width = Math.round(100 * p.step / total) + "%";
+    bar.appendChild(fill); c.appendChild(bar);
+    return;
+  }
+  const r = S.result;
+  if (r && r.added) {
+    c.appendChild(el("div", "done", "Added to the plate"));
+    c.appendChild(el("div", null, "Beside the original, as one object, each part on its own filament. Not saved yet."));
+    c.appendChild(stepList([[{b: "Slice"}, " it as it stands, or ", {b: "move the parts apart"}, " first."],
+                            [{b: "Save the project"}, " to keep the parts."]]));
+  } else if (r) {
+    c.appendChild(el("div", "done", "Parts written, not on the plate"));
+    c.appendChild(r.hint && r.hint.length
+      ? stepList(r.hint.map(h => [h]))
+      : r.project ? stepList([[{b: "File → Import → Import 3MF/STL"}, " (Ctrl+I)"],
+                              ["Choose ", {b: r.project}, " in the output folder. The parts arrive as one object, aligned, each on its own filament."]])
+                  : el("div"));
+  }
+  if (r) {
+    c.appendChild(el("div", "path", "Output folder: " + r.folder));
+    c.appendChild(openFolderButton());
+    return;
+  }
+  c.appendChild(el("h2", null, "What Split does"));
+  const ol = el("ol"), obj = name() || "the object";
+  const first = mode() === "paint" ? "Tries to cut " + obj + " along its colour borders."
+    : "Tries to cut " + obj + " along its sharp colour borders and turns surface paint into " + (mode() === "raise" ? "raised" : "inlaid") + " parts.";
+  ol.appendChild(el("li", null, first));
+  ol.appendChild(el("li", null, "Writes each part to the output folder."));
+  ol.appendChild(el("li", null, $("plate").checked
+    ? "Places the parts beside the original as one object, each on its own filament."
+    : "Leaves them there, for you to import."));
+  c.appendChild(ol);
+}
+function settingsSummary() {
+  const m = mode();
+  return [m === "paint" ? "Cut" : (m === "raise" ? "Raise " : "Inlay ") + thick() + " mm",
+          $("joints").checked ? "buried parts out whole" : "buried parts stay",
+          $("plate").checked ? "add to plate" : "keep off the plate"].join(" · ");
+}
+function renderChrome() {
+  const has = $("obj").options.length > 0;
+  $("go").disabled = S.busy || !has;
+  $("go").textContent = S.busy ? "Splitting…" : (has ? "Split " + name() : "Split");
+  $("go").classList.toggle("again", !!S.result);
+  $("cancel").disabled = !S.busy;
+  $("refresh").disabled = S.busy;
+  $("obj").disabled = S.busy;
+  $("thick").disabled = mode() === "paint";
+  $("sumtxt").textContent = settingsSummary();
+  $("tab").classList.toggle("finished", !!S.result);
+}
+function render() { renderLedger(); renderNext(); renderChrome(); }
+function showSettings(openIt) {
+  $("settings").classList.toggle("plain", openIt);
+  $("settings").open = openIt;
+}
+function optionsChanged() {
+  if (!S.result) { renderLedger(); renderNext(); }
+  renderChrome();
+}
+
+function scan() {
+  if (S.busy || !$("obj").options.length) return;
+  S.key = key(); S.reading = true; S.scanError = ""; S.lastScan = Date.now();
+  post({type: "scan", index: parseInt($("obj").value, 10), seq: ++S.seq});
+}
+function forget() { S.result = null; S.ledger = null; S.scanError = ""; S.error = ""; showSettings(true); }
+
+window.orca.onMessage(m => {
+  if (!m) return;
+  if (m.type === "objects") {
+    const keep = $("obj").value;
+    $("obj").innerHTML = "";
+    for (const o of m.objects) { const opt = el("option", null, o.name); opt.value = o.index; $("obj").appendChild(opt); }
+    if ([...$("obj").options].some(o => o.value === keep)) $("obj").value = keep;
+    S.none = !m.objects.length;
+    if (S.none) { forget(); S.key = null; S.reading = false; }
+    else if (!S.busy && (S.force || key() !== S.key)) { forget(); scan(); }
+    else if (S.wantScan && !S.result && !S.busy && Date.now() - S.lastScan > SCAN_AGAIN_MS) scan();
+    S.force = S.wantScan = false;
+    render();
+  } else if (m.type === "colours" || m.type === "scan_error") {
+    if (m.seq !== S.seq) return;  // an answer to a question no longer asked
+    S.reading = false; S.lastScan = Date.now();
+    if (m.type === "colours") { S.ledger = m; S.scanError = ""; }
+    else { S.ledger = null; S.scanError = m.message; }
+    render();
+  } else if (m.type === "progress") {
+    S.progress = m;
+    renderNext();
+  } else if (m.type === "done") {
+    S.busy = false; S.progress = null; S.result = m;
+    showSettings(false);
+    render();
+    setTimeout(() => post({type: "refresh"}), 3000);  // the new object in the list
+  } else if (m.type === "error") {
+    S.busy = false; S.progress = null; S.error = m.message;
+    render();
+  }
+});
+
+$("refresh").onclick = () => { S.force = true; post({type: "refresh"}); };
+$("cancel").onclick = () => post({type: "cancel"});
+$("obj").onchange = () => { forget(); scan(); render(); };
+document.querySelectorAll('input[name="surface"]').forEach(r => r.addEventListener("change", optionsChanged));
+for (const id of ["thick", "joints", "plate"]) $(id).addEventListener("input", optionsChanged);
+$("go").onclick = () => {
+  S.error = "";
+  if (mode() !== "paint" && !(thick() >= 0.2 && thick() <= 5)) { S.error = "Thickness must be 0.2 to 5 mm."; renderNext(); return; }
+  S.busy = true; S.result = null; S.reading = false; S.seq++;  // a scan still running no longer counts
+  S.progress = {step: 0, total: 4, message: "starting"};
+  showSettings(true);
+  post({type: "split", index: parseInt($("obj").value, 10), split_joints: $("joints").checked,
+        surface_mode: mode(), surface_thickness: mode() === "paint" ? 0.6 : thick(), add_to_plate: $("plate").checked});
+  render();
+};
+window.addEventListener("focus", () => { if (!S.busy) { S.wantScan = true; post({type: "refresh"}); } });
+render();
+post({type: "refresh"});
+</script></body></html>
