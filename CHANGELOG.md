@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.3.1 (2026-11-10)
+Published on Orca Cloud (review: Low risk) and on GitHub as release v1.3.1.
+
 - American English throughout the tab, messages and documents. Nothing else changed.
 
 ## 1.3.0 (2026-11-09)
