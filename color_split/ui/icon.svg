@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <!-- Color Split: a disc cut along its colour border, the halves slid past each other.
+  <!-- Color Split: a disc cut along its color border, the halves slid past each other.
        Simplified from branding/logo.svg: larger halves and a wider gap, so it reads at 20 px. -->
   <rect width="64" height="64" rx="13" fill="#0F5C6E"/>
   <path d="M29,5 A21,21 0 0 0 29,47 Z" fill="#FF6B4A"/>

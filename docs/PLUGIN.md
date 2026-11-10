@@ -1,11 +1,11 @@
 # Color Split
 
-Turn a colour-painted model into separate printable parts, one per colour. Print each colour
+Turn a color-painted model into separate printable parts, one per color. Print each color
 on its own and glue or press-fit the parts together. You need no multi-material unit, and
 there is no purge waste.
 
 ## How to use
-1. Paint the model with OrcaSlicer's colour painting tool.
+1. Paint the model with OrcaSlicer's color painting tool.
 2. Open the **Color Split** tab, pick the object and press **Split**.
 3. The parts land on the plate as one object, each part on its own filament. They are
    unsaved: save the project to keep them, or undo.
@@ -17,7 +17,7 @@ there is no purge waste.
   whole at its foot, inside walls and frames included.
 - Paint that winds around the model (a ball sunk into a joint) is cut along a surface
   stretched across its border, so the part always fits back on.
-- Colours that touch each other come off as one piece and are split between the colours.
+- Colors that touch each other come off as one piece and are split between the colors.
 - Sloppy paint is fine: paint up to 0.5 mm over or short of an edge snaps to it, and stray
   specks are cleaned up.
 - Every part is a closed mesh, and "Split to objects" gives no loose fragments.
@@ -38,4 +38,4 @@ base is cut through it so the ball fits between the two halves of its socket.
   import `<object>_split.3mf` from the plugin's folder with File → Import.
 - The plugin installs numpy, manifold3d and scipy. It asks once for permission to start a
   background thread.
-- Licence: GPL-3.0-or-later.
+- License: GPL-3.0-or-later.

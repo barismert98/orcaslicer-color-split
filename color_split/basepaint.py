@@ -19,7 +19,7 @@ _MATCH = 1e-3  # mm a base vertex may be from the model's: the base is float32
 _ON_SURFACE = 5e-3  # mm; farther from the model's surface is a new face (a cap is 0.02 above it)
 _SAMPLING = 0.25  # mm between the surface points paint is looked up on
 _MAX_DEPTH = 5  # subdivisions of one new triangle along a paint border
-_MIN_EDGE = 0.4  # mm; a triangle this small takes one colour
+_MIN_EDGE = 0.4  # mm; a triangle this small takes one color
 
 
 @dataclass

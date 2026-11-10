@@ -2,18 +2,18 @@
 
 # Color Split
 
-An OrcaSlicer 2.5 plugin that turns a colour-painted model into separate printable parts, one
-per colour. You can print each colour on its own and glue or press-fit the parts together,
+An OrcaSlicer 2.5 plugin that turns a color-painted model into separate printable parts, one
+per color. You can print each color on its own and glue or press-fit the parts together,
 with no multi-material unit and no purge waste.
 
-![The Color Split tab: each colour found and the part it becomes](docs/images/tab.png)
+![The Color Split tab: each color found and the part it becomes](docs/images/tab.png)
 
 ![A painted model split into parts in OrcaSlicer](docs/images/step3-parts.png)
 
 Also on [Orca Cloud](https://cloud.orcaslicer.com/app/plugins/shared-plugins/3f2d8111-07f1-446b-a91e-4dd396d5f47b).
 
 ## What it does
-Paint the model with OrcaSlicer's colour painting tool, open the **Color Split** tab, pick the
+Paint the model with OrcaSlicer's color painting tool, open the **Color Split** tab, pick the
 object and press **Split**. The parts land on the plate as one object, each part on its own
 filament, unsaved: save the project to keep them, or undo.
 
@@ -22,15 +22,15 @@ filament, unsaved: save the project to keep them, or undo.
   surface under the feature, however curved, so the parts meet on one shared surface. There
   are no depth or clearance settings to tune.
 - **A shell painted on the outside** (a boat's cabin, its door and window frames left bare)
-  comes off whole at its foot, inside walls and frames included. A base-colour part standing
+  comes off whole at its foot, inside walls and frames included. A base-color part standing
   on it (a chimney on the roof) comes off as a part of its own.
 - **Paint that winds around the model** (a ball sunk into a knee) is cut along a surface
   stretched across its visible border, like a soap film. The part touches the rest only
   through that surface, so it always fits back on.
-- **Touching colours** (a tower painted half red, half blue) come off the base as one piece
-  and are split between the colours.
+- **Touching colors** (a tower painted half red, half blue) come off the base as one piece
+  and are split between the colors.
 - **Separately modelled bodies painted all over** (a stripe made as a slab pushed through a
-  bar) are taken as their colour's part as they are.
+  bar) are taken as their color's part as they are.
 - **Sloppy paint is fine.** Paint that spills over an edge, or stops short of it, by up to
   0.5 mm snaps to the edge. Slivers the brush missed and stray specks are cleaned up.
 - **Watertight output, no crumbs.** Every part is a closed mesh. "Split to objects" in
@@ -41,7 +41,7 @@ filament, unsaved: save the project to keep them, or undo.
 Painted regions that wrap a shape (a sleeve, trousers, an eye) are cut along their paint border
 and the openings closed. Paint that encloses no volume (a patch on a flat face) has nothing to
 cut off. For that, the tab offers, like OrcaSlicer's text tool:
-- **Cut** (default): it stays on the base, and the slicer prints it in colour.
+- **Cut** (default): it stays on the base, and the slicer prints it in color.
 - **Raise**: it becomes a part on top of the surface, the set height thick (0.2 to 5 mm).
 - **Inlay**: a pocket the set depth deep, with a part that fills it flush.
 
@@ -80,7 +80,7 @@ python -m color_split project.3mf --object 0 --out parts [--surface paint|raise|
 ## Limits
 - Windows is the tested platform. Adding the parts to the plate automatically works on Windows
   only; elsewhere, import the `_split.3mf` by hand.
-- Only colour painting is read; support, seam and fuzzy-skin paint are ignored.
+- Only color painting is read; support, seam and fuzzy-skin paint are ignored.
 - A painted feature is cut where at least 90% of its border is a sharp edge (45° or more,
   measured over 1 mm, so rounded feet count). A border at least 50% sharp is cut at the foot
   of the shell it encloses; partly sharp borders (15% or more) use the film cut.
@@ -88,7 +88,7 @@ python -m color_split project.3mf --object 0 --out parts [--surface paint|raise|
   on the base.
 - A cut that would slice through base geometry joined to the feature (something resting on
   it, a wall touching it) is not made; the summary says why.
-- An unpainted patch inside a painted feature is printed in the feature's colour; the summary
+- An unpainted patch inside a painted feature is printed in the feature's color; the summary
   says where.
 
 ## Development

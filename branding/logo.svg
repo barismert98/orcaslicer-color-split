@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Slid apart: a disc cut along its colour border, the halves shifted past each other -->
+  <!-- Slid apart: a disc cut along its color border, the halves shifted past each other -->
   <rect width="100" height="100" fill="#0F5C6E"/>
   <path d="M48,20 A30,30 0 0 0 48,80 Z" fill="#FF6B4A"/>
   <path d="M56,32 A30,30 0 0 1 56,92 Z" fill="#FFE8C2"/>

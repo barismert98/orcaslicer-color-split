@@ -23,7 +23,7 @@ class Summary:
     volumes: dict[str, float] = field(default_factory=dict)
     skipped: list[int] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    project: Path | None = None  # the parts as one coloured object, for File > Import
+    project: Path | None = None  # the parts as one colored object, for File > Import
     pieces: dict[str, int] = field(default_factory=dict)  # file name -> separate pieces
     base: int = 1  # the object's own filament
     shares: dict[int, float] = field(default_factory=dict)  # filament -> percent of the surface
@@ -76,7 +76,7 @@ def run(threemf_path, index: int, out_dir,
         surface_thickness: float = surface.DEFAULT_THICKNESS) -> Summary:
     """Read object ``index``, split it, and write the STLs into ``out_dir``.
 
-    ``progress(step, total, message)`` returning False cancels (raises ``Cancelled``);
+    ``progress(step, total, message)`` returning False cancels (raises ``Canceled``);
     nothing is written unless every part was built.
     """
     if surface_mode not in ("paint", "raise", "inlay"):
@@ -109,16 +109,16 @@ def run(threemf_path, index: int, out_dir,
     if islands:
         w.append(f"cleaned up {islands} tiny paint island(s) left by the brush")
     for colour, where in found.islands:
-        w.append(f"colour {colour}: an unpainted patch at {where} lies inside the painted area "
-                 "and is printed in that colour with it")
+        w.append(f"color {colour}: an unpainted patch at {where} lies inside the painted area "
+                 "and is printed in that color with it")
     if found.snapped:
         w.append(f"snapped {found.snapped} paint strip(s) to the edge next to them")
     for colour, n in sorted(found.surface.items()):
-        w.append(f"colour {colour}: {n} painted area(s) are surface paint (a stripe, a ring, "
+        w.append(f"color {colour}: {n} painted area(s) are surface paint (a stripe, a ring, "
                  "a hole lining) and stay painted on the base in the split project (the STL "
                  "has no paint); set Surface paint to Raise or Inlay to make them parts")
     for colour, n in sorted(found.unsafe.items()):
-        w.append(f"colour {colour}: {n} feature(s) could not be cut safely and stay on the base")
+        w.append(f"color {colour}: {n} feature(s) could not be cut safely and stay on the base")
     w.extend(found.notes)
     if found.films:
         w.append(f"cut {found.films} painted part(s) along a surface stretched across their "
@@ -132,7 +132,7 @@ def run(threemf_path, index: int, out_dir,
             w.append(f"filled {result.recess_fills} painted recess(es) (engraved text, a "
                      "pocket) flush with the surface")
     if result.bodies:
-        w.append(f"took {result.bodies} separately modelled body(ies) painted all over as colour "
+        w.append(f"took {result.bodies} separately modeled body(ies) painted all over as color "
                  "parts as they are")
     if result.balls:
         w.append(f"took {result.balls} buried round part(s) out whole")
@@ -165,7 +165,7 @@ def run(threemf_path, index: int, out_dir,
                                           result.painted, obj.extruder,
                                           verbatim=not result.surface_parts)
         elif result.painted is not None and extruder in result.part_paint:
-            # colours too thin to be parts stay painted on the part around them
+            # colors too thin to be parts stay painted on the part around them
             only = np.isin(result.painted.states, list(result.part_paint[extruder]))
             on_part = replace(result.painted, states=np.where(only, result.painted.states, extruder))
             F, codes = basepaint.transfer(V, F, obj.V, obj.F, obj.codes, obj.part_extruders,
@@ -179,7 +179,7 @@ def run(threemf_path, index: int, out_dir,
         write_stl(out_dir / name, V, F)
         summary.files.append(out_dir / name)
         summary.volumes[name] = volume
-    # one object with every part on its extruder: File > Import loads it aligned and coloured
+    # one object with every part on its extruder: File > Import loads it aligned and colored
     # every separate piece its own part, so each can be printed (or moved) on its own
     parts = []
     for name, (V, F), _, extruder, codes in meshes:

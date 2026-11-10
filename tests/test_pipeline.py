@@ -119,7 +119,7 @@ def test_every_piece_is_its_own_part_in_the_project(tmp_path):
     c = V[F].mean(axis=1)
     codes = ["8" if p else None for p in in_tower(c) & (c[:, 2] > 10 + 1e-6)]
     Vc, Fc = cube(5)
-    # a second, separate painted cube: colour 2 has two pieces
+    # a second, separate painted cube: color 2 has two pieces
     codes2 = ["8"] * len(Fc)
     path = project3mf.write_project(tmp_path / "p.3mf", "p", [
         project3mf.Part("block", V, F, 1, codes), project3mf.Part("cube", Vc + [30, 0, 0], Fc, 1, codes2)])
@@ -183,9 +183,9 @@ def test_cut_feature_leaves_no_paint_but_other_paint_stays(tmp_path):
     assert "tower_color2.stl" in summary.volumes
     corners = V[F[bottom]]
     want = 0.5 * np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1).sum()
-    areas = painted_areas(summary.project)  # parts of the object: base and the colour-2 part
+    areas = painted_areas(summary.project)  # parts of the object: base and the color-2 part
     assert areas.get(3) == pytest.approx(want)
-    assert areas.get(2, 0) == 0  # the colour-2 part is a part on its filament, not paint
+    assert areas.get(2, 0) == 0  # the color-2 part is a part on its filament, not paint
 
 
 def test_raised_surface_paint_is_not_also_painted(tmp_path):
@@ -200,7 +200,7 @@ def test_raised_surface_paint_is_not_also_painted(tmp_path):
 
 
 def sphere_3mf(tmp_path, pupil_z):
-    """A sphere with a painted cap (colour 3) and, inside it, a smaller cap of colour 2."""
+    """A sphere with a painted cap (color 3) and, inside it, a smaller cap of color 2."""
     import manifold3d
     V, F = to_mesh(manifold3d.Manifold.sphere(10, 256).translate((0, 0, 10)))
     c = V[F].mean(axis=1)
@@ -212,7 +212,7 @@ def sphere_3mf(tmp_path, pupil_z):
 
 
 def test_paint_on_a_smooth_body_is_cut_along_its_border(tmp_path):
-    path, _ = sphere_3mf(tmp_path, 25.0)  # no pupil: every triangle above 17 is colour 3
+    path, _ = sphere_3mf(tmp_path, 25.0)  # no pupil: every triangle above 17 is color 3
     summary = pipeline.run(path, 0, tmp_path / "out")
     assert "ball_color3.stl" in summary.volumes
     cap = np.pi * 3 ** 2 * (3 * 10 - 3) / 3

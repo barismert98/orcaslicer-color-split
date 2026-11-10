@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Color-Split"
-version = "1.3.0"
-description = "Color Split: turn a colour-painted OrcaSlicer model into separate printable parts, one per colour"
+version = "1.3.1"
+description = "Color Split: turn a color-painted OrcaSlicer model into separate printable parts, one per color"
 readme = "docs/PLUGIN.md"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]

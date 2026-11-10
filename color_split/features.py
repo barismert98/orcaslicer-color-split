@@ -7,13 +7,13 @@ cut off by a cap that continues the surrounding base surface under it, so the tw
 on one shared surface and no depth or clearance is involved.
 
 Paint on a smooth surface (a stripe, a ring, a logo) has no edge to cut along. It stays on the
-base and is reported; the slicer prints it in colour as painted.
+base and is reported; the slicer prints it in color as painted.
 
 Rules for real, imperfect paint:
 
 * Sharpness is measured over a ``WINDOW`` around each border point, not per triangle, so a
   rounded (filleted) foot still counts as a sharp edge.
-* Paint that spills onto the neighbouring face, or stops short of the edge, by up to ``SPILL``
+* Paint that spills onto the neighboring face, or stops short of the edge, by up to ``SPILL``
   is snapped to the edge.
 * The cap follows the base surface around the feature (a quadric fit), so a feature on a
   curved base is cut along the curve.
@@ -121,7 +121,7 @@ def edge_pairs(F: np.ndarray):
 
 
 def normals_and_areas(V: np.ndarray, F: np.ndarray, a: np.ndarray, b: np.ndarray):
-    """Unit face normals (slivers take their neighbours' average) and areas."""
+    """Unit face normals (slivers take their neighbors' average) and areas."""
     c = V[F]
     n = np.cross(c[:, 1] - c[:, 0], c[:, 2] - c[:, 0])
     area2 = np.linalg.norm(n, axis=1)
@@ -203,9 +203,9 @@ def snap_to_edges(V, F, S, normals, area, a, b, edges) -> tuple[np.ndarray, int]
 class Cutter:
     solid: manifold3d.Manifold
     caps: list  # per cut surface: on_cap(points) -> bool mask (points lying on that surface)
-    where: list  # region centre, for messages
+    where: list  # region center, for messages
     fallback: object = None  # () -> Cutter | None: the film cutter, tried if this one fails
-    mix: dict | None = None  # several colours touching: colour -> triangle mask
+    mix: dict | None = None  # several colors touching: color -> triangle mask
     film: bool = False  # cut along a stretched film instead of the base surface
 
 
@@ -218,17 +218,17 @@ class Feature:
 @dataclass
 class Findings:
     features: list[Feature] = field(default_factory=list)
-    surface: dict[int, int] = field(default_factory=dict)  # colour -> regions left as paint
-    unsafe: dict[int, int] = field(default_factory=dict)  # colour -> features not cut safely
+    surface: dict[int, int] = field(default_factory=dict)  # color -> regions left as paint
+    unsafe: dict[int, int] = field(default_factory=dict)  # color -> features not cut safely
     snapped: int = 0
     films: int = 0  # features cut along a stretched film (their border winds around the part)
-    islands: list = field(default_factory=list)  # (colour, centre) of patches taken into a part
-    surface_regions: list = field(default_factory=list)  # (colour, triangle indices, centre)
-    recesses: dict = field(default_factory=dict)  # centre (str) -> (owned mask, opening loop)
+    islands: list = field(default_factory=list)  # (color, center) of patches taken into a part
+    surface_regions: list = field(default_factory=list)  # (color, triangle indices, center)
+    recesses: dict = field(default_factory=dict)  # center (str) -> (owned mask, opening loop)
     normals: np.ndarray | None = None  # face normals and areas of the analysed mesh
     areas: np.ndarray | None = None
-    failed: list = field(default_factory=list)  # centres of regions whose cut failed
-    sharp: dict = field(default_factory=dict)  # region centre (str) -> share of sharp border
+    failed: list = field(default_factory=list)  # centers of regions whose cut failed
+    sharp: dict = field(default_factory=dict)  # region center (str) -> share of sharp border
     states: np.ndarray | None = None  # per-triangle states after snapping
     notes: list[str] = field(default_factory=list)  # why features were not cut
 
@@ -529,7 +529,7 @@ def _height_cap(frame, cap):
 
 def _film(ring: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """A disc of triangles spanning the closed polyline ``ring`` (N,3), relaxed like a soap
-    film: every inner vertex moves to the mean of its neighbours. Returns (points, faces);
+    film: every inner vertex moves to the mean of its neighbors. Returns (points, faces);
     the first N points are ``ring``. Faces run against the ring's direction."""
     n = len(ring)
     centre = ring.mean(axis=0)
@@ -627,7 +627,7 @@ def recess_fill(V, F, normals, area, owned, loop) -> manifold3d.Manifold | None:
 
 
 def find_features(V, F, S, base_state: int, cut_smooth: bool = True) -> Findings:
-    """Feature cutters for every colour (states other than 0 and ``base_state``)."""
+    """Feature cutters for every color (states other than 0 and ``base_state``)."""
     a, b, edges = edge_pairs(F)
     normals, area = normals_and_areas(V, F, a, b)
     findings = Findings()
@@ -639,12 +639,12 @@ def find_features(V, F, S, base_state: int, cut_smooth: bool = True) -> Findings
     centroids = V[F].mean(axis=1)
     tree = cKDTree(centroids)
     colours = sorted(int(s) for s in np.unique(S) if s not in (0, base_state))
-    # Colours that touch each other (a tower painted half red, half blue) are one feature: it
-    # is cut from the base as a whole, then split between its colours (solids.split).
+    # Colors that touch each other (a tower painted half red, half blue) are one feature: it
+    # is cut from the base as a whole, then split between its colors (solids.split).
     any_paint = np.isin(S, colours)
     group = components(len(F), a[any_paint[a] & any_paint[b]], b[any_paint[a] & any_paint[b]])
     mixed = np.zeros(len(F), dtype=bool)
-    jobs = []  # (colour, painted mask, [(region mask, {colour: mask} or None)])
+    jobs = []  # (color, painted mask, [(region mask, {color: mask} or None)])
     for label in np.unique(group[any_paint]):
         members = any_paint & (group == label)
         here = np.unique(S[members])
@@ -686,8 +686,8 @@ def find_features(V, F, S, base_state: int, cut_smooth: bool = True) -> Findings
                 vol = float(np.sum(area[comp] * np.einsum("ij,ij->i", centroids[comp] - o,
                                                           normals[comp])) / 3)
                 if abs(vol) < MIN_FEATURE_VOLUME:
-                    # a flat patch of another colour inside the region (a dot on a ball): it
-                    # goes with the feature, which is printed in one colour
+                    # a flat patch of another color inside the region (a dot on a ball): it
+                    # goes with the feature, which is printed in one color
                     cavities.append(c)
                     findings.islands.append((colour, np.round(centroids[comp].mean(axis=0), 1).tolist()))
                     continue
@@ -815,7 +815,7 @@ def find_features(V, F, S, base_state: int, cut_smooth: bool = True) -> Findings
             if reason is not None or solid is None or solid.is_empty():
                 cutter = film() if reason != "border does not close" else None
                 if cutter is None:
-                    findings.notes.append(f"colour {colour} at {where}: {reason or 'caps do not meet'}")
+                    findings.notes.append(f"color {colour} at {where}: {reason or 'caps do not meet'}")
                     findings.unsafe[colour] = findings.unsafe.get(colour, 0) + 1
                     findings.failed.append(where)
                     continue
@@ -831,8 +831,8 @@ def find_features(V, F, S, base_state: int, cut_smooth: bool = True) -> Findings
 
 
 def colour_film(V, F, normals, area, mask) -> manifold3d.Manifold | None:
-    """The solid a colour patch claims inside a feature painted in several colours: its
-    surface closed by a film across its border (with the other colours and the base)."""
+    """The solid a color patch claims inside a feature painted in several colors: its
+    surface closed by a film across its border (with the other colors and the base)."""
     a, b, edges = edge_pairs(F)
     cross_ab = mask[a] & ~mask[b]
     cross_ba = mask[b] & ~mask[a]

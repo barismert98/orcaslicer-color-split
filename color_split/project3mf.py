@@ -46,7 +46,7 @@ def write_project(path, name: str, parts: list[Part], place: tuple | None = None
                   baked: bool = False, offset=(0.0, 0.0, 0.0)) -> Path:
     """One object called ``name`` made of ``parts``. The parts keep their relative positions.
 
-    ``place`` (x, y) puts the object's centre there on the bed; by default it keeps the
+    ``place`` (x, y) puts the object's center there on the bed; by default it keeps the
     parts' own world coordinates. ``baked`` writes those coordinates (moved by ``offset``)
     into the mesh itself, with an identity placement: when OrcaSlicer imports the file into an
     open project it does not apply the placement the way it does when it opens a project.

@@ -81,7 +81,7 @@ def split_mesh(V, F, codes, defaults=None) -> tuple[np.ndarray, np.ndarray]:
     """Expand every triangle into its painted leaves; unpainted triangles stay whole with state 0.
 
     ``defaults`` (per triangle) replaces state 0, unpainted, by the filament of the
-    triangle's part, so parts set to other filaments keep their colour."""
+    triangle's part, so parts set to other filaments keep their color."""
     V = np.asarray(V, dtype=np.float64)
     F = np.asarray(F, dtype=np.int64)
     out_corners = []

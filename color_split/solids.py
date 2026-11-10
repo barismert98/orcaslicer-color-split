@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Colour parts and base from a painted object (manifold3d booleans).
+"""Color parts and base from a painted object (manifold3d booleans).
 
-``features`` finds the painted features and one cutter per feature; a colour part is the
+``features`` finds the painted features and one cutter per feature; a color part is the
 object inside its cutters, the base is the object outside all of them. Both share the cut
 surface exactly, so the parts fit back together without any clearance.
 """
@@ -22,24 +22,24 @@ class NotManifoldError(ValueError):
 
 
 class Cancelled(Exception):
-    """The caller asked to stop between colours."""
+    """The caller asked to stop between colors."""
 
 
 @dataclass
 class SplitResult:
     base: manifold3d.Manifold
-    inlays: dict[int, manifold3d.Manifold] = field(default_factory=dict)  # colour -> part
+    inlays: dict[int, manifold3d.Manifold] = field(default_factory=dict)  # color -> part
     findings: features.Findings | None = None
     crumbs: int = 0  # small pieces with real volume dropped
     returned: int = 0  # unpainted pieces caught by a cutter and given back to the base
-    bodies: int = 0  # separate bodies painted all over, taken as colour parts as they are
+    bodies: int = 0  # separate bodies painted all over, taken as color parts as they are
     balls: int = 0  # painted parts of a sphere taken as whole balls (joints)
     split_joints: int = 0  # sockets split through a ball buried past its middle
     surface_parts: int = 0  # surface paint made into raised or inlaid parts
     recess_fills: int = 0  # of which painted recesses (engraved text) filled flush
     held_balls: int = 0  # buried balls left painted because joint splitting is off
     painted: basepaint.Surface | None = None  # the model and the paint left on the base
-    part_paint: dict[int, set] = field(default_factory=dict)  # part colour -> colours painted on it
+    part_paint: dict[int, set] = field(default_factory=dict)  # part color -> colors painted on it
 
 
 MIN_PIECE_VOLUME = 0.5  # mm^3; smaller pieces cannot be printed and are boolean debris
@@ -130,9 +130,9 @@ def _compact(V, F):
 
 
 def object_manifold(V, F, report: list | None = None) -> manifold3d.Manifold:
-    """The object as one solid. Each separate shell (a part, a body modelled on its own) is
+    """The object as one solid. Each separate shell (a part, a body modeled on its own) is
     made solid by itself and the shells are united, so bodies pushed into each other (a stripe
-    modelled as a slab through a bar) give their union, not an invalid self-intersecting mesh."""
+    modeled as a slab through a bar) give their union, not an invalid self-intersecting mesh."""
     F = np.asarray(F, dtype=np.int64).reshape(-1, 3)
     label = edge_components(F)
     shells = [F[label == l] for l in np.unique(label)]
@@ -153,7 +153,7 @@ def _painted_share(piece: manifold3d.Manifold, painted: cKDTree) -> float:
 
 SPHERE_TOLERANCE = 0.1  # mm a painted point may lie off the fitted ball
 SPHERE_SHARE = 0.6  # share of a region's paint that must lie on the ball
-BALL_TOLERANCE_SHARE = 0.02  # of the radius: modelled balls are not perfect spheres
+BALL_TOLERANCE_SHARE = 0.02  # of the radius: modeled balls are not perfect spheres
 MAX_BALL_TOLERANCE = 0.5  # mm
 BALL_SHARP_SHARE = 0.15  # share of the border that must be a sharp edge (a patch on a head: ~0)
 MIN_BALL_AREA = 20.0  # mm^2 of paint on the ball before it counts as one
@@ -167,15 +167,15 @@ class Ball:
     centre: np.ndarray
     radius: float
     exposed: float  # share of the ball's surface that is painted (visible)
-    where: list  # the painted region's centre, as in the notes
+    where: list  # the painted region's center, as in the notes
     cut_radius: float = 0.0  # radius of the cut: the ball plus the model's own deviation
 
 
 def find_balls(V, F, S, colours, cut, sharp) -> list[Ball]:
     """Painted regions that are part of a sphere (a ball joint half buried in a knee).
 
-    Regions already cut off along an edge (centres in ``cut``) are skipped. A region is a ball
-    only if most of its border is a sharp edge (``sharp``: centre -> share): a patch painted
+    Regions already cut off along an edge (centers in ``cut``) are skipped. A region is a ball
+    only if most of its border is a sharp edge (``sharp``: center -> share): a patch painted
     on a round head has a smooth border and is surface paint, not a ball. Real balls are not
     perfect spheres, so the tolerance grows with the radius."""
     a, b, _ = features.edge_pairs(F)
@@ -227,7 +227,7 @@ def find_balls(V, F, S, colours, cut, sharp) -> list[Ball]:
 
 
 def _split_at(base: manifold3d.Manifold, ball: Ball) -> tuple[manifold3d.Manifold, list]:
-    """Cut ``base`` through the ball's centre across the limb it sits in, so a ball buried
+    """Cut ``base`` through the ball's center across the limb it sits in, so a ball buried
     more than halfway can be put in: the two halves of its socket come apart.
 
     The plane only separates the joint itself: where it crosses other geometry (the other
@@ -243,7 +243,7 @@ def _split_at(base: manifold3d.Manifold, ball: Ball) -> tuple[manifold3d.Manifol
     frame = np.stack([u, np.cross(axis, u), axis])  # world -> local, the plane is w = 0
     to_local = np.c_[frame, -frame @ ball.centre]
     local = base.transform(to_local.tolist())
-    # cross-section regions: the joint is the one around the ball's centre
+    # cross-section regions: the joint is the one around the ball's center
     regions = [r.to_polygons() for r in local.slice(0.0).decompose()]
     joint = [i for i, polys in enumerate(regions)
              if _in_polygons(np.zeros((1, 2)), polys)[0]
@@ -321,11 +321,11 @@ def _cut_through_base(piece: manifold3d.Manifold, surface: cKDTree, cutter) -> f
     return float(area[~np.isfinite(on_model) & ~on_cap].sum())
 
 
-CARRIED_SHARE = 0.9  # of a surface-painted area on a cut-off part of its colour: it went with it
+CARRIED_SHARE = 0.9  # of a surface-painted area on a cut-off part of its color: it went with it
 
 
 def _carried_paint(found, V, F, taken) -> None:
-    """Surface paint lying on a part already cut off in its own colour (the inside walls of a
+    """Surface paint lying on a part already cut off in its own color (the inside walls of a
     cabin painted inside and out) went with that part: it is neither surface paint left on the
     base nor to be raised or inlaid."""
     keep = []
@@ -356,8 +356,8 @@ def split(obj: manifold3d.Manifold, leaves, states, base_state: int,
     V, F, parent = features.conform(leaves)
     S = np.asarray(states, dtype=np.int64)[parent]
     add = manifold3d.OpType.Add
-    # A separate body painted all over in one colour (a stripe modelled as a slab through a
-    # bar) is that colour's part as it is; the rest of the object loses its volume.
+    # A separate body painted all over in one color (a stripe modeled as a slab through a
+    # bar) is that color's part as it is; the rest of the object loses its volume.
     a, b, _ = features.edge_pairs(F)
     shell = features.components(len(F), a, b)
     whole = np.zeros(len(F), dtype=bool)
@@ -391,7 +391,7 @@ def split(obj: manifold3d.Manifold, leaves, states, base_state: int,
         everything.append(part)
         result.inlays[colour] = part
         result.bodies += len(parts)
-    taken = []  # (colour, part) cut off along edges
+    taken = []  # (color, part) cut off along edges
     for feature in found.features:
         painted = cKDTree(features.samples(V[F[found.states == feature.colour]], 0.1))
         for cutter in feature.cutters:
@@ -432,7 +432,7 @@ def split(obj: manifold3d.Manifold, leaves, states, base_state: int,
             if sliced > CUT_SIDE_AREA:
                 # the cut would slice through base geometry joined to the feature (a bridge
                 # resting on it, a wall right beside it): leave the feature on the base
-                found.notes.append(f"colour {feature.colour} at {cutter.where}: the cut would "
+                found.notes.append(f"color {feature.colour} at {cutter.where}: the cut would "
                                    f"slice {sliced:.1f} mm^2 through base geometry")
                 found.unsafe[feature.colour] = found.unsafe.get(feature.colour, 0) + 1
                 found.failed.append(cutter.where)
@@ -446,23 +446,23 @@ def split(obj: manifold3d.Manifold, leaves, states, base_state: int,
             taken.append((feature.colour, part))
             shares = {feature.colour: part}
             if cutter.mix:
-                # several colours: each smaller one takes what its film claims, the main
-                # colour the rest, so the colours meet on one surface inside the feature
+                # several colors: each smaller one takes what its film claims, the main
+                # color the rest, so the colors meet on one surface inside the feature
                 for colour, mask in sorted(cutter.mix.items(), key=lambda kv: found.areas[kv[1]].sum()):
                     if colour == feature.colour:
                         continue
                     claim = features.colour_film(V, F, found.normals, found.areas, mask)
                     if claim is None:
-                        found.notes.append(f"colour {colour} at {cutter.where}: could not be "
-                                           f"separated from colour {feature.colour}")
+                        found.notes.append(f"color {colour} at {cutter.where}: could not be "
+                                           f"separated from color {feature.colour}")
                         continue
                     piece, _ = drop_crumbs(shares[feature.colour] ^ claim)
                     if piece.is_empty():
                         # too thin to be a part (a pupil on a head): it stays as paint on the
                         # part around it, which keeps its volume
                         result.part_paint.setdefault(feature.colour, set()).add(colour)
-                        found.notes.append(f"colour {colour} at {cutter.where}: too thin to be "
-                                           f"a part; it stays painted on the colour "
+                        found.notes.append(f"color {colour} at {cutter.where}: too thin to be "
+                                           f"a part; it stays painted on the color "
                                            f"{feature.colour} part")
                         continue
                     shares[feature.colour] = shares[feature.colour] - piece
@@ -523,7 +523,7 @@ def split(obj: manifold3d.Manifold, leaves, states, base_state: int,
             else:
                 part, cutter = surface.inlaid(obj, V, F[tris], surface_thickness)
             if part is None:
-                found.notes.append(f"colour {colour} at {where}: could not "
+                found.notes.append(f"color {colour} at {where}: could not "
                                    f"{'raise' if surface_mode == 'raise' else 'inlay'} this paint")
                 continue
             part, dropped = drop_crumbs(part)

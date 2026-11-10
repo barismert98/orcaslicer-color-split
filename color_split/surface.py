@@ -21,7 +21,7 @@ import numpy as np
 
 from . import features
 
-SMOOTHING = 8  # passes that average each vertex normal with its neighbours
+SMOOTHING = 8  # passes that average each vertex normal with its neighbors
 MAX_MITER = 2.0  # an offset is never stretched more than this at a sharp bend
 OVERLAP = 0.05  # mm the thickened layer reaches past the surface, so faces never coincide
 DEFAULT_THICKNESS = 0.6  # mm
@@ -39,7 +39,7 @@ def thicken(V: np.ndarray, F: np.ndarray, outward: float, inward: float) -> mani
     vn = np.zeros_like(P)
     np.add.at(vn, T.reshape(-1), np.repeat(normals * area[:, None], 3, axis=0))
     vn /= np.maximum(np.linalg.norm(vn, axis=1, keepdims=True), 1e-12)
-    # neighbours along edges (each vertex pair once)
+    # neighbors along edges (each vertex pair once)
     e = np.unique(np.sort(np.concatenate([T[:, [0, 1]], T[:, [1, 2]], T[:, [2, 0]]]), axis=1), axis=0)
     for _ in range(SMOOTHING):
         acc = vn.copy()

@@ -3,8 +3,8 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Color Split</title>
 <style>
-/* Colours come from OrcaSlicer's --orca-* theme and the project's real filament colours.
-   Greys are translucent so they work on both themes. Nothing here moves on its own. */
+/* Colors come from OrcaSlicer's --orca-* theme and the project's real filament colors.
+   Grays are translucent so they work on both themes. Nothing here moves on its own. */
 :root{--raised:rgba(128,128,128,.10);--raised-2:rgba(128,128,128,.18);--track:rgba(128,128,128,.28);
   --solid:rgba(128,128,128,.6);--line:var(--orca-border,rgba(128,128,128,.35));--muted:var(--orca-muted,#8a8a8a);
   --accent:var(--orca-accent,#00897b);--accent-fg:var(--orca-accent-fg,#fff);--outline:var(--orca-muted,#8a8a8a)}
@@ -149,12 +149,12 @@ button:disabled{opacity:.45;cursor:default}
   <img src="data:image/svg+xml;base64,__ICON__" alt="">
   <div><h1>Color Split</h1><div class="sub">From one painted model to separate parts</div></div>
   <div class="pick"><label for="obj">Object</label><select id="obj"></select>
-   <button class="icon" id="refresh" title="Read the plate and the colours again" aria-label="Read the plate again">&#x21bb;</button></div>
+   <button class="icon" id="refresh" title="Read the plate and the colors again" aria-label="Read the plate again">&#x21bb;</button></div>
  </header>
  <div class="main">
   <div class="left">
    <div>
-    <div class="heads"><div id="head-from">Colours found</div><svg aria-hidden="true"><use href="#slid"/></svg><div id="head-to"></div></div>
+    <div class="heads"><div id="head-from">Colors found</div><svg aria-hidden="true"><use href="#slid"/></svg><div id="head-to"></div></div>
     <div id="ledger"></div>
    </div>
    <div id="below"></div>
@@ -183,7 +183,7 @@ button:disabled{opacity:.45;cursor:default}
 <script>
 const $ = id => document.getElementById(id);
 const post = m => window.orca.postMessage(m);
-const SCAN_AGAIN_MS = 5000;  // returning to the tab reads the colours again, at most this often
+const SCAN_AGAIN_MS = 5000;  // returning to the tab reads the colors again, at most this often
 const S = {busy: false, seq: 0, key: null, ledger: null, reading: false, scanError: "", result: null,
            progress: null, error: "", lastScan: 0, wantScan: false, force: false, none: false};
 
@@ -203,7 +203,7 @@ function swatchRow(rowName, sub, c, to) {
   const row = el("div", "lrow"), from = el("div", "from");
   const sw = el("span", "sw");
   if (c.colour) sw.style.background = c.colour;
-  sw.title = c.colour || "Colour not known";
+  sw.title = c.colour || "Color not known";
   const text = el("div", "text");
   text.appendChild(el("div", "name", rowName));
   if (sub) text.appendChild(el("div", "sub2", sub));
@@ -243,7 +243,7 @@ function attempt() {
 function renderLedger() {
   const box = $("ledger"), below = $("below");
   box.innerHTML = ""; below.innerHTML = "";
-  $("head-from").textContent = name() ? "Colours found on " + name() : "Colours found";
+  $("head-from").textContent = name() ? "Colors found on " + name() : "Colors found";
   const r = S.result;
   if (r) {
     const stayed = r.found.filter(c => c.outcome !== "part").length;
@@ -253,7 +253,7 @@ function renderLedger() {
     const base = r.parts.find(p => p.filament === null);
     if (base) used.add(base);
     box.appendChild(swatchRow("Base", baseSub(r.base), r.base,
-      base ? partCell(base) : toCell("No base part", "Nothing was left once the colours were cut away")));
+      base ? partCell(base) : toCell("No base part", "Nothing was left once the colors were cut away")));
     for (const c of r.found) {
       const part = r.parts.find(p => p.filament === c.filament);
       if (part) used.add(part);
@@ -267,35 +267,35 @@ function renderLedger() {
   }
   $("head-to").textContent = S.ledger ? "What Color Split will try" : "";
   if (S.none) {
-    box.appendChild(el("div", "blank", "No object on the plate has colour painting. Paint one with the colour painting tool, then press ↻."));
+    box.appendChild(el("div", "blank", "No object on the plate has color painting. Paint one with the color painting tool, then press ↻."));
   } else if (S.ledger) {
     const b = S.ledger.base;
-    box.appendChild(swatchRow("Base", baseSub(b), b, toCell("Base part", "What is left once the colours are cut away")));
+    box.appendChild(swatchRow("Base", baseSub(b), b, toCell("Base part", "What is left once the colors are cut away")));
     for (const c of S.ledger.colours)
       box.appendChild(swatchRow("Filament " + c.filament, c.preset, c, toCell("Try to cut out as a part", attempt())));
     const note = el("div", "note");
     if (S.ledger.colours.length) {
-      note.appendChild(el("b", null, "Not every colour can become a part. "));
+      note.appendChild(el("b", null, "Not every color can become a part. "));
       note.append(mode() === "paint"
-        ? "Smooth flat paint that encloses no volume, and colours too thin to stand alone, such as a pupil on an eye, stay painted on their neighbour. You will see which ones after the split."
+        ? "Smooth flat paint that encloses no volume, and colors too thin to stand alone, such as a pupil on an eye, stay painted on their neighbor. You will see which ones after the split."
         : "Paint that cannot be cut or built safely stays painted on the base. You will see which ones after the split.");
     } else {
-      note.append("This object has only its base filament, so there is no other colour to split off.");
+      note.append("This object has only its base filament, so there is no other color to split off.");
     }
     below.appendChild(note);
   } else if (S.scanError) {
     box.appendChild(el("div", "blank", S.scanError));
   } else if (S.busy) {
-    box.appendChild(el("div", "blank", "The colours appear here when the split is done."));
+    box.appendChild(el("div", "blank", "The colors appear here when the split is done."));
   } else if (S.reading) {
-    box.appendChild(el("div", "blank", "Reading colours of " + name() + "…"));
+    box.appendChild(el("div", "blank", "Reading colors of " + name() + "…"));
   }
 }
 
 const RANK = /could not|stay painted|nothing to split/i;
 function renderNotes(parent, warnings) {
   if (!warnings.length) return;
-  const text = w => { const s = w.replace(/^colour (\d+)/i, "Filament $1"); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const text = w => { const s = w.replace(/^color (\d+)/i, "Filament $1"); return s.charAt(0).toUpperCase() + s.slice(1); };
   const ranked = [...warnings.filter(w => RANK.test(w)), ...warnings.filter(w => !RANK.test(w))].map(text);
   const note = el("div", "note notes");
   note.appendChild(el("h3", null, "Notes from the split (" + ranked.length + ")"));
@@ -359,8 +359,8 @@ function renderNext() {
   }
   c.appendChild(el("h2", null, "What Split does"));
   const ol = el("ol"), obj = name() || "the object";
-  const first = mode() === "paint" ? "Tries to cut " + obj + " along its colour borders."
-    : "Tries to cut " + obj + " along its sharp colour borders and turns surface paint into " + (mode() === "raise" ? "raised" : "inlaid") + " parts.";
+  const first = mode() === "paint" ? "Tries to cut " + obj + " along its color borders."
+    : "Tries to cut " + obj + " along its sharp color borders and turns surface paint into " + (mode() === "raise" ? "raised" : "inlaid") + " parts.";
   ol.appendChild(el("li", null, first));
   ol.appendChild(el("li", null, "Writes each part to the output folder."));
   ol.appendChild(el("li", null, $("plate").checked

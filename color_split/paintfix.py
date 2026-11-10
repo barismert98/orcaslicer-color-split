@@ -2,7 +2,7 @@
 """Clean up careless painting before splitting.
 
 A brush rarely covers every triangle: a few slivers inside a painted area stay unpainted, and a
-stray click leaves a speck of colour elsewhere. Each such island would become a needle of base
+stray click leaves a speck of color elsewhere. Each such island would become a needle of base
 material left in a pocket, or a crumb of an inlay. Islands smaller than ``MIN_AREA`` mm², or
 thinner than ``MIN_WIDTH`` mm (2 · area / border length), are given the state they share the
 longest border with.
@@ -68,7 +68,7 @@ def clean_states(leaves, states, min_area: float = MIN_AREA, min_width: float = 
         small &= border > 0  # an island must touch something to be merged into it
         if not small.any():
             break
-        # longest shared border per (small region, neighbour state)
+        # longest shared border per (small region, neighbor state)
         target = np.full(len(ids), -1)
         best = np.zeros(len(ids))
         for src, dst_tri, w in ((ra, b[cross], length[cross]), (rb, a[cross], length[cross])):

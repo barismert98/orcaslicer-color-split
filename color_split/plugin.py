@@ -122,7 +122,7 @@ def _options(data) -> tuple[int, dict]:
 
 
 def _filaments() -> tuple[list, list]:
-    """UI thread: the project's (preset names, hex colours) in slot order; empty if unknown."""
+    """UI thread: the project's (preset names, hex colors) in slot order; empty if unknown."""
     try:
         bundle = orca.host.preset_bundle()
     except Exception:  # noqa: BLE001 - the numbers are enough without the names
@@ -191,7 +191,7 @@ def _import_hint(project: Path) -> list[str]:
 
 def _failure(exc: BaseException) -> str:
     if isinstance(exc, pipeline.Cancelled):
-        return "Cancelled; nothing was written."
+        return "Canceled; nothing was written."
     if isinstance(exc, NotManifoldError):
         return ("The object's mesh is not closed. Repair it first (right-click → Fix model) "
                 "and try again.")
@@ -222,7 +222,7 @@ class SplitPaintedPart(orca.script.ScriptPluginCapabilityBase):
             return
         objects = _painted_objects()
         if not objects:
-            orca.host.ui.message("No object in this project has colour painting.", TITLE)
+            orca.host.ui.message("No object in this project has color painting.", TITLE)
             window.close()
             return
         window.post({"type": "init", "objects": objects})
@@ -255,7 +255,7 @@ class SplitPaintedPart(orca.script.ScriptPluginCapabilityBase):
             finally:
                 progress.close()
         except pipeline.Cancelled:
-            orca.host.ui.message("Cancelled; nothing was written.", TITLE)
+            orca.host.ui.message("Canceled; nothing was written.", TITLE)
             return
         except NotManifoldError:
             orca.host.ui.message("The object's mesh is not closed. Repair it first "
@@ -376,9 +376,9 @@ if _pages is not None:
                 tmp, _ = _export(self._storage(), index, f"scan{self._scan_no}.3mf")
                 filaments = _filaments()
             except Exception as exc:  # noqa: BLE001 - reported on the page
-                log.exception("colour scan could not start")
+                log.exception("color scan could not start")
                 self._post({"type": "scan_error", "seq": seq,
-                            "message": f"Could not read the colours: {exc}"})
+                            "message": f"Could not read the colors: {exc}"})
                 return
             _start_thread(lambda: self._scan(tmp, index, seq, filaments))
 
@@ -387,9 +387,9 @@ if _pages is not None:
             try:
                 found = pipeline.scan(tmp, index)
             except Exception as exc:  # noqa: BLE001 - reported on the page
-                log.exception("colour scan failed")
+                log.exception("color scan failed")
                 self._post({"type": "scan_error", "seq": seq,
-                            "message": f"Could not read the colours: {exc}"})
+                            "message": f"Could not read the colors: {exc}"})
                 return
             finally:
                 tmp.unlink(missing_ok=True)

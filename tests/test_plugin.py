@@ -167,7 +167,7 @@ def test_page_reports_bad_input_and_cancel(env):
         page.on_message(json.dumps({"type": "split", "index": 1}))
     finally:
         plugin.pipeline.run = original
-    assert state.page_posts[-1] == {"type": "error", "message": "Cancelled; nothing was written."}
+    assert state.page_posts[-1] == {"type": "error", "message": "Canceled; nothing was written."}
 
 
 def test_page_shows_only_measured_motion_and_handles_every_reply():
